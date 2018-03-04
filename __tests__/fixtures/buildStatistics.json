@@ -1,0 +1,33 @@
+{
+  "count": 26,
+  "property": [
+    {
+      "name": "CodeCoverageAbsLCovered",
+      "value": "6407"
+    },
+    {
+      "name": "CodeCoverageAbsLTotal",
+      "value": "7999"
+    },
+    {
+      "name": "CodeCoverageAbsMCovered",
+      "value": "1847"
+    },
+    {
+      "name": "CodeCoverageAbsMTotal",
+      "value": "2311"
+    },
+    {
+      "name": "CodeCoverageB",
+      "value": "80.1"
+    },
+    {
+      "name": "CodeCoverageL",
+      "value": "80.1"
+    },
+    {
+      "name": "CodeCoverageM",
+      "value": "79.92"
+    }
+  ]
+}

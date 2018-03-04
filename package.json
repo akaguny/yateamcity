@@ -1,0 +1,39 @@
+{
+  "name": "yateamcity",
+  "version": "0.0.0",
+  "description": "yet another teamcity api library for node",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/akaguny/yateamcity.git"
+  },
+  "keywords": [
+    "teamcity",
+    "restapi",
+    "service-messages"
+  ],
+  "author": "Alexey.Shcherbakov",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/akaguny/yateamcity/issues"
+  },
+  "homepage": "https://github.com/akaguny/yateamcity#readme",
+  "devDependencies": {
+    "fs-extra": "^5.0.0",
+    "jest": "^22.4.2",
+    "nock": "^9.2.3",
+    "path": "^0.12.7"
+  },
+  "dependencies": {
+    "base64url": "^2.0.0",
+    "changelog.md": "^1.1.0",
+    "debug": "^3.1.0",
+    "eslint-teamcity": "^2.0.0",
+    "lodash.get": "^4.4.2",
+    "node-fetch": "^2.0.0",
+    "xml2js": "^0.4.19"
+  }
+}

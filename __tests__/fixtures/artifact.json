@@ -1,0 +1,58 @@
+[
+  {
+    "filePath": "fileOne",
+    "messages": [
+      {
+        "ruleId": "indent",
+        "severity": 2,
+        "message": "Expected indentation of 6 spaces but found 8.",
+        "line": 82,
+        "column": 9,
+        "nodeType": "VariableDeclaration",
+        "source": "        var userMessage = 'line ' + (message.line || 0) +",
+        "fix": {
+          "range": [
+            2710,
+            2718
+          ],
+          "text": "      "
+        }
+      },
+      {
+        "ruleId": "indent",
+        "severity": 2,
+        "message": "Expected indentation of 6 spaces but found 8.",
+        "line": 86,
+        "column": 9,
+        "nodeType": "IfStatement",
+        "source": "        if (message.fatal || message.severity === 2) {",
+        "fix": {
+          "range": [
+            2906,
+            2914
+          ],
+          "text": "      "
+        }
+      },
+      {
+        "ruleId": "indent",
+        "severity": 2,
+        "message": "Expected indentation of 4 spaces but found 6.",
+        "line": 93,
+        "column": 7,
+        "nodeType": "BlockStatement",
+        "source": "      });",
+        "fix": {
+          "range": [
+            3127,
+            3133
+          ],
+          "text": "    "
+        }
+      }
+    ],
+    "errorCount": 3,
+    "warningCount": 0,
+    "source": "test-tests"
+  }
+]

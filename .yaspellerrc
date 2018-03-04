@@ -1,0 +1,18 @@
+{
+  "checkYo": true,
+  "lang": "en,ru",
+  "format": "auto",
+  "fileExtensions": [".md"],
+  "excludeFiles": [
+    ".*",
+    "yaspeller",
+    "node_modules",
+    "report"
+  ],
+  "dictionary": [
+    "yateamcity",
+    "akaguny",
+    "changelog",
+    "md"
+  ]
+}

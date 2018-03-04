@@ -25,7 +25,8 @@
     "fs-extra": "^5.0.0",
     "jest": "^22.4.2",
     "nock": "^9.2.3",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "yaspeller-ci": "^1.0.0"
   },
   "dependencies": {
     "base64url": "^2.0.0",

@@ -121,11 +121,7 @@ function getBuildArtifact () {
   const options = { method: 'GET',
     // TODO: настраиваемый путь до нужного артефакта, сейчас зашито: reports.zip%21/eslint.json
     url: `${creditials.host}/repository/download/${creditials.buildTypeId}/${buildId}:id/reports.zip%21/eslint.json`,
-    headers:
-            { 'cache-control': 'no-cache',
-              // TODO: вынести реквизиты в base64 в переменную на этапе init
-              'Authorization': 'Basic ' + base64Encode(`${creditials.username}:${creditials.password}`)
-            }
+    headers: headers(creditials.username, creditials.password)
   };
 
   debug('\n\noptions.url', options.url, '\n\n');
@@ -158,10 +154,7 @@ function setLatestSuccessfullBuildId (masterBranchName) {
 function getBuildIdByBuildName (masterBranchName) {
   const options = { method: 'GET',
     url: `${creditials.host}/httpAuth/app/rest/builds?locator=buildType:${creditials.buildTypeId},branch:name:${masterBranchName},count:1,status:SUCCESS,state:finished`,
-    headers:
-        { 'cache-control': 'no-cache',
-          'Authorization': 'Basic ' + base64Encode(`${creditials.username}:${creditials.password}`)
-        }
+    headers: headers(creditials.username, creditials.password)
   };
 
   debug('\n\noptions.url', options.url, '\n\n');
@@ -221,12 +214,7 @@ function setBuildName (buildName) {
 function getBuildStatistics (statisticsParameterName, _buildId = buildId) {
   const options = { method: 'GET',
     url: `${creditials.host}/app/rest/builds/buildId:${_buildId}/statistics`,
-    headers:
-      {
-        'cache-control': 'no-cache',
-        'Accept': 'application/json',
-        'Authorization': 'Basic ' + base64Encode(`${creditials.username}:${creditials.password}`)
-      }
+    headers: headers(creditials.username, creditials.password)
   };
 
   return fetch(options.url, options).then(function (response) {
@@ -250,10 +238,7 @@ function getBranches(buildTypeId=creditials.buildTypeId) {
   const url = `${creditials.host}/app/rest/buildTypes/id:${encodeURIComponent(buildTypeId)}/branches?locator=policy:ALL_BRANCHES&fields=branch(internalName,default,active)`,
         fetchOpt = {
           method: 'GET',
-          headers:  {
-            'Accept': 'application/json',
-            'Authorization': 'Basic ' + base64Encode(`${creditials.username}:${creditials.password}`)
-          }
+          headers:  headers(creditials.username, creditials.password)
         };
 
   return fetch(url, fetchOpt)
@@ -294,6 +279,20 @@ function getProperties() {
   configProps = stringToProps(fs.readFileSync(buildProps['teamcity.configuration.properties.file'], 'utf8'));
 
   return Object.assign(buildProps, runnerProps, configProps);
+}
+
+/**
+ * Make standart headers for request to teamcity
+ * @param {string} login - login
+ * @param {string} password - password
+ * @returns {object} {{'cache-control': string, 'accept': 'application/json', 'Authorization': string}} - object what can 
+ */
+function headers(login, password) {
+  return {
+    'cache-control': 'no-cache',
+    'accept': 'application/json',
+    'Authorization': 'Basic ' + base64Encode.encode(`${login}:${password}`)
+  };
 }
 
 /**

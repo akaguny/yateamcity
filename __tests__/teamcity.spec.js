@@ -14,7 +14,6 @@ nock.disableNetConnect();
 describe('teamcity', () => {
   beforeEach(() => {
     tc = require(path.resolve(basePackagePath, 'src/teamcity'));
-    console.log(path.resolve(basePackagePath, 'src/teamcity'));
   });
 
   afterEach(() => {
@@ -67,7 +66,7 @@ describe('teamcity', () => {
         nock.cleanAll();
       });
 
-      it('использует входные данные', () => {
+      it('использует входные данные', async () => {
         nock(testHost)
           .get(function (url) {
             expect(url).toEqual('/httpAuth/app/rest/builds');
@@ -80,15 +79,15 @@ describe('teamcity', () => {
             }
           );
 
-        tc.init({username: testUsername, password: testPassword, host: testHost, buildTypeId: testBuildTypeId}, testMasterBuildName);
+        await tc.init({username: testUsername, password: testPassword, host: testHost, buildTypeId: testBuildTypeId}, testMasterBuildName);
       });
 
       describe('позволяет получать', () => {
-        beforeEach((done) => {
-          tc.init({username: testUsername, password: testPassword, host: testHost, buildTypeId: testBuildTypeId}, testMasterBuildName).then(done);
+        beforeEach(async () => {
+          await tc.init({username: testUsername, password: testPassword, host: testHost, buildTypeId: testBuildTypeId}, testMasterBuildName);
         });
 
-        it('артефакт мастер сборки', (done) => {
+        it('артефакт мастер сборки', async () => {
           nock(testHost)
             .get(function (url) {
               expect(url).toEqual(`repository/download/${testBuildTypeId}/${testBuildId}:id/reports.zip%21/eslint.json`);
@@ -96,31 +95,28 @@ describe('teamcity', () => {
             });
           tc.getBuildArtifact().then((buildArtifact) => {
             expect(JSON.parse(buildArtifact)).toEqual(eslintReportJSON);
-            done();
           });
         });
 
-        it('параметры сбороки', (done) => {
+        it('параметры сбороки', async () => {
           nock(testHost)
             .get(function (url) {
               expect(url).toEqual(`/app/rest/builds/buildId:${testBuildId}/statistics`);
               return false;
             });
-          tc.getBuildStatistics(undefined, testBuildId).then((buildStatistic) => {
+          await tc.getBuildStatistics(undefined, testBuildId).then((buildStatistic) => {
             expect(buildStatistic).toEqual(buildStatisticsJSON.property);
-            done();
           });
         });
 
-        it('все ветки в билд конфигурации', (done) => {
+        it('все ветки в билд конфигурации', async () => {
           nock(testHost)
             .get(function (url) {
               expect(url).toEqual(`/app/rest/buildTypes/id:${testBuildTypeId}/branches?locator=policy:ALL_BRANCHES&fields=branch(internalName,default,active)`);
               return false;
             });
-          tc.getBranches().then((_branches) => {
+          await tc.getBranches().then((_branches) => {
             expect(_branches).toEqual(branches.branch);
-            done();
           });
         });
       

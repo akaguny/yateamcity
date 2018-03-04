@@ -10,7 +10,7 @@ describe('utils', () => {
       expect(utils.mergePathsFromAnyEnv).toThrowError('Параметр env не задан');
     });
 
-    it('env задан', function () {
+    it('env задан', () => {
       let path = utils.mergePathsFromAnyEnv('/home/alexey/IdeaProjects/sfa',
         '/opt/teamcity-agent/work/89d8f1306cb75ef7/devTools/js/grunt-config/clean.js', 'teamcity');
 

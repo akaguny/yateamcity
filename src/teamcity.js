@@ -101,7 +101,7 @@ function reportStatus (currentMode, isSuccess, reason) {
       break;
     default:
       _reason = reason ? `=== Reason: ${reason}` : '';
-      console.log(`\n\n=== Build ${isSuccess}\n${_reason}`);
+      process.stdout.write(`\n\n=== Build ${isSuccess}\n${_reason}`);
   }
 }
 
@@ -111,7 +111,7 @@ function reportStatus (currentMode, isSuccess, reason) {
  * @param {String} [reason] - причина
  */
 function setBuildStatus (status, reason) {
-  console.log(`##teamcity[buildStatus status='${status}' text='${reason}']`);
+  process.stdout.write(`##teamcity[buildStatus status='${status}' text='${reason}']`);
 }
 
 /**
@@ -170,7 +170,7 @@ function getBuildIdByBuildName (masterBranchName) {
       let buildId;
       xml2js(result, function (err, parsed) {
         if (err) {
-          console.log('\n\nError, when send request', '\n\n');
+          process.stdout.write('\n\nError, when send request', '\n\n');
           throw new Error(err);
         } else if (!parsed.builds.build) {
           throw new Error(`No much any successfull build for buildType:${creditials.buildTypeId} and branch:${masterBranchName}`);
@@ -192,7 +192,7 @@ function getBuildIdByBuildName (masterBranchName) {
  * @param {Object} eslintJsonReport - данные JSON объекта
  */
 function prepareEslintReportForTeamcity (eslintJsonReport) {
-  console.log(eslintTeamcityReporter(eslintJsonReport));
+  process.stdout.write(eslintTeamcityReporter(eslintJsonReport));
 }
 
 /**
@@ -201,7 +201,7 @@ function prepareEslintReportForTeamcity (eslintJsonReport) {
  * @param {String} problemTypeId - идентификатор проблемы
  */
 function setBuildProblem (problemDescription, problemTypeId) {
-  console.log(`##teamcity[buildProblem description='${problemDescription}' identity='${problemTypeId || ''}']`);
+  process.stdout.write(`##teamcity[buildProblem description='${problemDescription}' identity='${problemTypeId || ''}']`);
 }
 
 /**
@@ -209,7 +209,7 @@ function setBuildProblem (problemDescription, problemTypeId) {
  * @param {String} buildName - имя сборки
  */
 function setBuildName (buildName) {
-  console.log(`##teamcity[buildNumber '${buildName}']`);
+  process.stdout.write(`##teamcity[buildNumber '${buildName}']`);
 }
 
 /**

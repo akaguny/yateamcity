@@ -38,8 +38,6 @@ describe('teamcity', () => {
     });
 
     it('поддердивает необходимое api', () => {
-      expect(tc.init).toBeDefined();
-
       expect(tc.setBuildStatus).toBeDefined();
 
       expect(tc.getBuildArtifact).toBeDefined();
@@ -66,25 +64,10 @@ describe('teamcity', () => {
         nock.cleanAll();
       });
 
-      it('использует входные данные', async () => {
-        nock(testHost)
-          .get(function (url) {
-            expect(url).toEqual('/httpAuth/app/rest/builds');
-            return false;
-          })
-          .query(
-            function (actualQueryObject) {
-              expect(actualQueryObject.locator).toEqual(`buildType:${testBuildTypeId},branch:name:${encodedTestMasterBuildName},count:1,status:SUCCESS,state:finished`);
-              return false;
-            }
-          );
-
-        await tc.init({username: testUsername, password: testPassword, host: testHost, buildTypeId: testBuildTypeId}, testMasterBuildName);
-      });
-
       describe('позволяет получать', () => {
+        let options;
         beforeEach(async () => {
-          await tc.init({username: testUsername, password: testPassword, host: testHost, buildTypeId: testBuildTypeId}, testMasterBuildName);
+          options = {username: testUsername, password: testPassword, host: testHost, buildTypeId: testBuildTypeId, branch: testMasterBuildName};
         });
 
         it('артефакт мастер сборки', async () => {
@@ -93,7 +76,7 @@ describe('teamcity', () => {
               expect(url).toEqual(`repository/download/${testBuildTypeId}/${testBuildId}:id/reports.zip%21/eslint.json`);
               return false;
             });
-          tc.getBuildArtifact().then((buildArtifact) => {
+          tc.getBuildArtifact(options).then((buildArtifact) => {
             expect(JSON.parse(buildArtifact)).toEqual(eslintReportJSON);
           });
         });
@@ -104,7 +87,7 @@ describe('teamcity', () => {
               expect(url).toEqual(`/app/rest/builds/buildId:${testBuildId}/statistics`);
               return false;
             });
-          await tc.getBuildStatistics(undefined, testBuildId).then((buildStatistic) => {
+          await tc.getBuildStatistics(undefined, options).then((buildStatistic) => {
             expect(buildStatistic).toEqual(buildStatisticsJSON.property);
           });
         });
@@ -115,7 +98,7 @@ describe('teamcity', () => {
               expect(url).toEqual(`/app/rest/buildTypes/id:${testBuildTypeId}/branches?locator=policy:ALL_BRANCHES&fields=branch(internalName,default,active)`);
               return false;
             });
-          await tc.getBranches().then((_branches) => {
+          await tc.getBranches({username: testUsername, password: testPassword, host: testHost, buildTypeId: testBuildTypeId}).then((_branches) => {
             expect(_branches).toEqual(branches.branch);
           });
         });

@@ -22,7 +22,7 @@ describe('teamcity', () => {
 
   describe('Модуль', () => {
     const testMasterBuildName = '1.12.0/develop',
-          encodedTestMasterBuildName = encodeURIComponent('1.12.0/develop'),
+          encodedTestMasterBuildName = '1.12.0/develop',
           testBuildStatus = 'Failed',
           testBuildFailedReason = 'It`s not good build',
           testBuildProblem = 'It`s real big problem',

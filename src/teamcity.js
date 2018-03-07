@@ -22,7 +22,7 @@ const xml2js = require('xml2js').parseString,
     host: ''
   },
   TeamcityError = require('./errors').teamcity,
-  debug = require('debug');
+  debug = require('debug')('yateamcity');
 
 module.exports = {
   setBuildStatus,
@@ -117,23 +117,17 @@ function setBuildStatus(status, reason) {
 /**
  * Получение артефакта сборки
  */
-function getBuildArtifact() {
-  const options = {
-    method: 'GET',
-    // TODO: настраиваемый путь до нужного артефакта, сейчас зашито: reports.zip%21/eslint.json
-    url: `${creditials.host}/repository/download/${creditials.buildTypeId}/${buildId}:id/reports.zip%21/eslint.json`,
-    headers: headers(creditials.username, creditials.password)
-  };
-
-  debug('\n\noptions.url', options.url, '\n\n');
-  return fetch(options.url, options).then(function (response) {
-    if (!response.ok) {
-      throw new Error(response.statusText);
+function getBuildArtifact(options) {
+  const url = `${creditials.host}/repository/download/${creditials.buildTypeId}/${buildId}:id/reports.zip%21/eslint.json`,
+    fetchOpt = {
+      method: 'GET',
+      headers: headers(creditials.username, creditials.password)
     }
-    return response.text();
-  }).catch((e) => {
-    throw new TeamcityError(e);
-  });
+
+  debug(`getBuildArtifact, ${url}, ${options}`);
+  return fetch(options.url, options).then(function (response) {
+    return response.ok ? response.json() : Promise.reject(response);
+  })
 };
 
 /**

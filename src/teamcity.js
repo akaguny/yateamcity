@@ -118,7 +118,7 @@ function setBuildStatus(status, reason) {
  * Получение артефакта сборки
  */
 function getBuildArtifact(options) {
-  const url = `${creditials.host}/repository/download/${creditials.buildTypeId}/${buildId}:id/reports.zip%21/eslint.json`,
+  const url = `${creditials.host}/repository/download/${encodeURIComponent(options.buildTypeId)}/${encodeURIComponent(options.buildId)}:id/${encodeURIComponent(options.artifact)}`,
     fetchOpt = {
       method: 'GET',
       headers: headers(creditials.username, creditials.password)
@@ -129,16 +129,6 @@ function getBuildArtifact(options) {
     return response.ok ? response.json() : Promise.reject(response);
   })
 };
-
-/**
- * Установка номера последней удачной сборки
- * @param {String} masterBranchName - имя master ветки
- */
-function setLatestSuccessfullBuildId(masterBranchName) {
-  return getBuildIdByBuildName(masterBranchName).then((_buildId) => {
-    buildId = _buildId;
-  });
-}
 
 /**
  * Id сборки по имени конфигурации и мастер ветке
@@ -207,14 +197,14 @@ function setBuildName(buildName) {
  * @param {String} [buildId=buildId] - идентификатор сборки
  * @return {Promise<Object[]>|Promise<Object>} - значение параметра или вся статистика
  */
-function getBuildStatistics(statisticsParameterName, _buildId = buildId) {
-  const options = {
+function getBuildStatistics(options) {
+  const url = `${creditials.host}/app/rest/builds/buildId:${_buildId}/statistics`,
+  fetchOpt = {
     method: 'GET',
-    url: `${creditials.host}/app/rest/builds/buildId:${_buildId}/statistics`,
-    headers: headers(creditials.username, creditials.password)
+    headers: headers(options.username, options.password)
   };
 
-  return fetch(options.url, options).then(function (response) {
+  return fetch(url, fetchOpt).then(function (response) {
     return response.ok ? response.json() : Promise.reject(response);
   }).then(result => {
     let buildStatisticsParameters = statisticsParameterName
@@ -228,14 +218,18 @@ function getBuildStatistics(statisticsParameterName, _buildId = buildId) {
 
 /**
  * Получение активных веток в сборке
- * @param {String} [buildTypeId=creditials.buildTypeId] - идентификатор конфигурации сборки
+ * @param {object} options объект опций
+ * @param {string} options.serverUrl базовый url teamcity
+ * @param {string} options.login логин
+ * @param {string} options.password пароль
+ * @param {string} options.buildTypeId build type id
  * @returns {Promise<Array>} объект с набором веток
  */
-function getBranches(buildTypeId = creditials.buildTypeId) {
-  const url = `${creditials.host}/app/rest/buildTypes/id:${encodeURIComponent(buildTypeId)}/branches?locator=policy:ALL_BRANCHES&fields=branch(internalName,default,active)`,
+function getBranches(options) {
+  const url = `${options.host}/app/rest/buildTypes/id:${encodeURIComponent(options.buildTypeId)}/branches?locator=policy:ALL_BRANCHES&fields=branch(internalName,default,active)`,
     fetchOpt = {
       method: 'GET',
-      headers: headers(creditials.username, creditials.password)
+      headers: headers(options.username, options.password)
     };
 
   return fetch(url, fetchOpt)
@@ -244,9 +238,7 @@ function getBranches(buildTypeId = creditials.buildTypeId) {
     })
     .then((branches) => {
       return branches.branch;
-    }).catch(function (err) {
-      throw new Error(err);
-    });
+    })
 }
 
 /**

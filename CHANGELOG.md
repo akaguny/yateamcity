@@ -1,3 +1,17 @@
+## [Version 0.0.2](https://github.com/akaguny/yateamcity/releases/tag/v0.0.2) (2018-3-11)
+
+### New features
+
+- wip: move to new api: [`c4bb322`](https://github.com/akaguny/yateamcity/commit/c4bb322)
+- teamcity new api: [`e8bffe0`](https://github.com/akaguny/yateamcity/commit/e8bffe0)
+
+### Bug fixes
+
+- move headers generate to dedicated function: [`d67bdc7`](https://github.com/akaguny/yateamcity/commit/d67bdc7)
+- promise reject: [`4a76404`](https://github.com/akaguny/yateamcity/commit/4a76404)
+
+[...full changes](https://github.com/akaguny/yateamcity/compare/v0.0.1...v0.0.2)
+
 ## [Version 0.0.1](https://github.com/akaguny/yateamcity/releases/tag/v0.0.1) (2018-3-4)
 
 ### New features

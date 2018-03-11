@@ -1,3 +1,11 @@
+## [Version 0.0.3](https://github.com/akaguny/yateamcity/releases/tag/v0.0.3) (2018-3-11)
+
+### Bug fixes
+
+- export teamcity in index.js: [`7f35d90`](https://github.com/akaguny/yateamcity/commit/7f35d90)
+
+[...full changes](https://github.com/akaguny/yateamcity/compare/v0.0.2...v0.0.3)
+
 ## [Version 0.0.2](https://github.com/akaguny/yateamcity/releases/tag/v0.0.2) (2018-3-11)
 
 ### New features

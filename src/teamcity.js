@@ -1,87 +1,20 @@
-const xml2js = require('xml2js').parseString,
-  fetch = require('node-fetch'),
-  base64Encode = require('base64url'),
-  eslintTeamcityReporter = require('eslint-teamcity'),
-  utils = require('./utils'),
-  main = {},
-  /**
-* Реквизиты доступа
-* @typedef {Object} Creditials
-* @property {String} login - логин
-* @property {String} pasword - пароль
-* @property {String} [buildTypeId] - id для поиска сборки
-* @property {String} [host] - url сервера teamcity
-*/
-
-  /**
-* @type {Creditials}
-*/
-  creditials = {
-    username: '',
-    password: '',
-    host: ''
-  },
-  TeamcityError = require('./errors').teamcity,
-  debug = require('debug')('yateamcity');
-
-module.exports = {
-  setBuildStatus,
-  setBuildProblem,
-  reportStatus,
-  setBuildName,
-  getBuildArtifact,
-  getBuildStatistics,
-  prepareEslintReportForTeamcity,
-  init,
-  getBranches,
-  getProperties,
-  isTeamcity
-};
-
-let buildId = '';
+const util = require('util');
+const xml2js = util.promisify(require('xml2js').parseString);
+const fetch = require('node-fetch');
+const base64Encode = require('base64url');
+const eslintTeamcityReporter = require('eslint-teamcity');
+const utils = require('./utils');
+const get = require('lodash.get');
+const debug = require('debug')('yateamcity');
+const fs = require('fs');
 
 /**
- * Инициализация
- * @param {Creditials} _creditials - реквизиты доступа
- * @param {String|Function} [branch=master] - имя master ветки
- * @return {Promise} - статус инициализации
+ * Установка проблем сборки
+ * @param {String} problemDescription - текстовое описание проблемы
+ * @param {String} problemTypeId - идентификатор проблемы
  */
-async function init(_creditials, branch) {
-  let pending = [],
-    _branches;
-  setCreditials(_creditials);
-  _branches = await getBranches(_creditials.buildTypeId);
-  pending.push(setLatestSuccessfullBuildId(encodeURIComponent(
-    typeof branch === 'string'
-      ? branch
-      : calculateMasterBranch(branch, _branches))));
-
-  return Promise.all(pending);
-}
-
-/**
- * @param {Function} [branch] - функция вычисления мастер ветки
- * @param {Array} [_branches] - массив имён веток
- * @return {String} - имя мастер ветки
- */
-function calculateMasterBranch(branch, _branches) {
-  return typeof branch === 'function'
-    ? branch(_branches.map((branch) => branch.internalName))
-    : 'master';
-}
-
-/**
- * Установка реквизитов доступа
- * @param {Creditials} _creditials - реквизиты доступа
- */
-function setCreditials(_creditials) {
-  ['host', 'username', 'password', 'buildTypeId'].forEach(item => {
-    if (_creditials[item]) {
-      creditials[item] = _creditials[item];
-    } else {
-      throw new Error(`No much argument ${item} from creditials`);
-    }
-  });
+function setBuildProblem(problemDescription, problemTypeId) {
+  process.stdout.write(`##teamcity[buildProblem description='${problemDescription}' identity='${problemTypeId || ''}']`);
 }
 
 /**
@@ -90,8 +23,8 @@ function setCreditials(_creditials) {
  * @param {Boolean} isSuccess - флаг статуса
  * @param {String} [reason=''] - причина
  */
-function reportStatus(currentMode, isSuccess, reason) {
-  let _reason;
+function reportStatus(currentMode, isSuccess, _reason) {
+  let reason = _reason || '';
 
   switch (currentMode) {
     case 'teamcity':
@@ -100,7 +33,7 @@ function reportStatus(currentMode, isSuccess, reason) {
       }
       break;
     default:
-      _reason = reason ? `=== Reason: ${reason}` : '';
+      reason = reason ? `=== Reason: ${reason}` : '';
       process.stdout.write(`\n\n=== Build ${isSuccess}\n${_reason}`);
   }
 }
@@ -115,72 +48,12 @@ function setBuildStatus(status, reason) {
 }
 
 /**
- * Получение артефакта сборки
- */
-function getBuildArtifact(options) {
-  const url = `${creditials.host}/repository/download/${encodeURIComponent(options.buildTypeId)}/${encodeURIComponent(options.buildId)}:id/${encodeURIComponent(options.artifact)}`,
-    fetchOpt = {
-      method: 'GET',
-      headers: headers(creditials.username, creditials.password)
-    }
-
-  debug(`getBuildArtifact, ${url}, ${options}`);
-  return fetch(options.url, options).then(function (response) {
-    return response.ok ? response.json() : Promise.reject(response);
-  })
-};
-
-/**
- * Id сборки по имени конфигурации и мастер ветке
- * @param {String} masterBranchName - имя master ветки
- * @return {Promise.<String>} - id последней удачной сборки по заданным
- * параметрам
- */
-function getBuildIdByBuildName(masterBranchName) {
-  const options = {
-    method: 'GET',
-    url: `${creditials.host}/httpAuth/app/rest/builds?locator=buildType:${creditials.buildTypeId},branch:name:${masterBranchName},count:1,status:SUCCESS,state:finished`,
-    headers: headers(creditials.username, creditials.password)
-  };
-
-  debug('\n\noptions.url', options.url, '\n\n');
-  return fetch(options.url, options).then(function (response) {
-    return response.ok ? response.text() : Promise.reject(response);
-  }).then(result => {
-    let buildId;
-    xml2js(result, function (err, parsed) {
-      if (err) {
-        process.stdout.write('\n\nError, when send request', '\n\n');
-        throw new Error(err);
-      } else if (!parsed.builds.build) {
-        throw new Error(`No much any successfull build for buildType:${creditials.buildTypeId} and branch:${masterBranchName}`);
-      } else {
-        buildId = parsed.builds.build[0].$.id;
-      }
-    });
-
-    return buildId;
-  }).catch(function (err) {
-    throw new Error(err);
-  });
-}
-
-/**
  * представление результатов проверки eslint в виде teamcity test
  * https://confluence.jetbrains.com/display/TCD10/Build+Script+Interaction+with+TeamCity#BuildScriptInteractionwithTeamCity-ReportingTests
  * @param {Object} eslintJsonReport - данные JSON объекта
  */
 function prepareEslintReportForTeamcity(eslintJsonReport) {
   process.stdout.write(eslintTeamcityReporter(eslintJsonReport));
-}
-
-/**
- * Установка проблем сборки
- * @param {String} problemDescription - текстовое описание проблемы
- * @param {String} problemTypeId - идентификатор проблемы
- */
-function setBuildProblem(problemDescription, problemTypeId) {
-  process.stdout.write(`##teamcity[buildProblem description='${problemDescription}' identity='${problemTypeId || ''}']`);
 }
 
 /**
@@ -192,28 +65,17 @@ function setBuildName(buildName) {
 }
 
 /**
- * Получить статистику по сборке
- * @param {String} [statisticsParameterName] - название параметра статистики
- * @param {String} [buildId=buildId] - идентификатор сборки
- * @return {Promise<Object[]>|Promise<Object>} - значение параметра или вся статистика
+ * Make standart headers for request to teamcity
+ * @param {string} login - login
+ * @param {string} password - password
+ * @returns {object} {{'cache-control': string, 'accept': 'application/json', 'Authorization': string}} - object what can
  */
-function getBuildStatistics(options) {
-  const url = `${creditials.host}/app/rest/builds/buildId:${_buildId}/statistics`,
-  fetchOpt = {
-    method: 'GET',
-    headers: headers(options.username, options.password)
+function headers(login, password) {
+  return {
+    'cache-control': 'no-cache',
+    accept: 'application/json',
+    Authorization: `Basic ${base64Encode.encode(`${login}:${password}`)}`,
   };
-
-  return fetch(url, fetchOpt).then(function (response) {
-    return response.ok ? response.json() : Promise.reject(response);
-  }).then(result => {
-    let buildStatisticsParameters = statisticsParameterName
-      ? utils.findObjectInArrayByPropertyName(result.property, 'name', statisticsParameterName)
-      : result.property;
-    return buildStatisticsParameters;
-  }).catch(function (err) {
-    throw new Error(err);
-  });
 }
 
 /**
@@ -226,19 +88,98 @@ function getBuildStatistics(options) {
  * @returns {Promise<Array>} объект с набором веток
  */
 function getBranches(options) {
-  const url = `${options.host}/app/rest/buildTypes/id:${encodeURIComponent(options.buildTypeId)}/branches?locator=policy:ALL_BRANCHES&fields=branch(internalName,default,active)`,
-    fetchOpt = {
-      method: 'GET',
-      headers: headers(options.username, options.password)
-    };
+  const url = `${options.host}/app/rest/buildTypes/id:${encodeURIComponent(options.buildTypeId)}/branches?locator=policy:ALL_BRANCHES&fields=branch(internalName,default,active)`;
+  const fetchOpt = {
+    method: 'GET',
+    headers: headers(options.username, options.password),
+  };
 
   return fetch(url, fetchOpt)
-    .then(function (response) {
-      return response.ok ? response.json() : Promise.reject(response);
-    })
-    .then((branches) => {
-      return branches.branch;
-    })
+    .then(response => (response.ok ? response.json() : Promise.reject(response)))
+    .then(branches => branches.branch);
+}
+
+/**
+ * Получение нормализованых опций
+ * @param {object} options объект опций
+ * @param {string} options.serverUrl базовый url teamcity
+ * @param {string} options.login логин
+ * @param {string} options.password пароль
+ * @param {string} options.buildTypeId build type id
+ * @param {string|function} options.branch имя ветки
+ * @returns {PromiseLike<object> | Promise<object>} набор нормализованных опций,
+ */
+function normalizeBuildOptions(options) {
+  let result;
+
+  if (typeof options.branch === 'function') {
+    result = getBranches(options)
+      .then(branches => options.branch(branches.branch.map(branch => branch.internalName)))
+      .then(branch => Object.assign({}, options, { branch }));
+  } else {
+    result = Promise.resolve(options);
+  }
+
+  return result;
+}
+
+/**
+ * Получение артефакта сборки
+ */
+async function getBuildArtifact(_options) {
+  const options = await normalizeBuildOptions(_options);
+  const url = `${options.host}/repository/download/${encodeURIComponent(options.buildTypeId)}/${encodeURIComponent(options.buildId)}:id/${encodeURIComponent(options.artifact)}`;
+  const fetchOpt = {
+    method: 'GET',
+    headers: headers(options.username, options.password),
+  };
+
+  debug(`getBuildArtifact, ${url}, ${options}`);
+  return fetch(url, fetchOpt).then(response => (response.ok ? response.json() : Promise.reject(response)));
+}
+
+/**
+ * Id сборки по имени конфигурации и ветке
+ * @param {Object} _options - имя master ветки
+ * @return {Promise.<String>} - id последней удачной сборки по заданным
+ * параметрам
+ */
+async function getLatestSuccessBuildId(_options) {
+  const options = await normalizeBuildOptions(_options);
+  const url = `${options.host}/httpAuth/app/rest/builds?locator=buildType:${options.buildTypeId},branch:name:${options.branch},count:1,status:SUCCESS,state:finished`;
+  const fetchOpt = {
+    method: 'GET',
+    headers: headers(options.username, options.password),
+  };
+
+  return fetch(url, fetchOpt).then(response => (response.ok ? response.text() : Promise.reject(response)))
+    .then(xml2js)
+    .then(parsed => (parsed.builds.build ?
+      get(parsed, 'builds.build[0].$.id') :
+      Promise.reject(Error(`No much any successfull build for buildType:${options.buildTypeId} and branch:${options.branch}`))));
+}
+
+/**
+ * Получить статистику по сборке
+ * @param {String} [statisticsParameterName] - название параметра статистики
+ * @param {String} [buildId=buildId] - идентификатор сборки
+ * @return {Promise<Object[]>|Promise<Object>} - значение параметра или вся статистика
+ */
+function getBuildStatistics(options) {
+  const url = `${options.host}/app/rest/builds/buildId:${options.buildId}/statistics`;
+  const fetchOpt = {
+    method: 'GET',
+    headers: headers(options.username, options.password),
+  };
+
+  return fetch(url, fetchOpt).then(response => (response.ok ? response.json() : Promise.reject(response))).then((result) => {
+    const buildStatisticsParameters = options.statisticsParameterName
+      ? utils.findObjectInArrayByPropertyName(result.property, 'name', options.statisticsParameterName)
+      : result.property;
+    return buildStatisticsParameters;
+  }).catch((err) => {
+    throw new Error(err);
+  });
 }
 
 /**
@@ -246,42 +187,22 @@ function getBranches(options) {
  * @returns {object} объект свойств
  */
 function getProperties() {
-  const fs = require('fs'),
-    REGEXP_PROPERTY = /^([^#\s].*?)=(.*)$/,
-    stringToProps = (src) => {
-      return src.split('\n')
-        .reduce((result, prop) => {
-          if (REGEXP_PROPERTY.test(prop)) {
-            // Какой-то треш в тимсити. Экранирует все :
-            result[RegExp.$1] = RegExp.$2.replace('\\:', ':');
-          }
-          return result;
-        }, {});
-    };
+  const REGEXP_PROPERTY = /^([^#\s].*?)=(.*)$/;
+  const stringToProps = src => src.split('\n')
+    .reduce((_result, prop) => {
+      const result = Object.assign({}, _result);
+      if (REGEXP_PROPERTY.test(prop)) {
+        // Какой-то треш в тимсити. Экранирует все :
+        result[RegExp.$1] = RegExp.$2.replace('\\:', ':');
+      }
+      return result;
+    }, {});
 
-  let buildProps,
-    runnerProps,
-    configProps;
-
-  buildProps = stringToProps(fs.readFileSync(process.env.TEAMCITY_BUILD_PROPERTIES_FILE, 'utf8'));
-  runnerProps = stringToProps(fs.readFileSync(buildProps['teamcity.runner.properties.file'], 'utf8'));
-  configProps = stringToProps(fs.readFileSync(buildProps['teamcity.configuration.properties.file'], 'utf8'));
+  const buildProps = stringToProps(fs.readFileSync(process.env.TEAMCITY_BUILD_PROPERTIES_FILE, 'utf8'));
+  const runnerProps = stringToProps(fs.readFileSync(buildProps['teamcity.runner.properties.file'], 'utf8'));
+  const configProps = stringToProps(fs.readFileSync(buildProps['teamcity.configuration.properties.file'], 'utf8'));
 
   return Object.assign(buildProps, runnerProps, configProps);
-}
-
-/**
- * Make standart headers for request to teamcity
- * @param {string} login - login
- * @param {string} password - password
- * @returns {object} {{'cache-control': string, 'accept': 'application/json', 'Authorization': string}} - object what can 
- */
-function headers(login, password) {
-  return {
-    'cache-control': 'no-cache',
-    'accept': 'application/json',
-    'Authorization': 'Basic ' + base64Encode.encode(`${login}:${password}`)
-  };
 }
 
 /**
@@ -291,3 +212,17 @@ function headers(login, password) {
 function isTeamcity() {
   return !!process.env.TEAMCITY_VERSION;
 }
+
+module.exports = {
+  setBuildStatus,
+  setBuildProblem,
+  reportStatus,
+  setBuildName,
+  getBuildArtifact,
+  getBuildStatistics,
+  prepareEslintReportForTeamcity,
+  getBranches,
+  getProperties,
+  getLatestSuccessBuildId,
+  isTeamcity,
+};

@@ -4,7 +4,8 @@
   "description": "yet another teamcity api library for node",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "style": "eslint src/**/*.js"
   },
   "repository": {
     "type": "git",
@@ -22,6 +23,9 @@
   },
   "homepage": "https://github.com/akaguny/yateamcity#readme",
   "devDependencies": {
+    "eslint": "^4.18.2",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.9.0",
     "fs-extra": "^5.0.0",
     "jest": "^22.4.2",
     "nock": "^9.2.3",

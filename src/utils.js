@@ -1,23 +1,20 @@
-const path = require('path'),
-      parse = require('lodash.get'),
-      agentPathMatcher = {teamcity: /.*teamcity-agent\/work\/[0-9a-z]+\//};
-let utils = {};
+const path = require('path');
+const parse = require('lodash.get');
 
-utils.mergePathsFromAnyEnv = mergePathFromAnotherEnv;
-utils.isVerboseMode = isVerboseMode;
-utils.findObjectInArrayByPropertyName = findObjectInArrayByPropertyName;
+const agentPathMatcher = { teamcity: /.*teamcity-agent\/work\/[0-9a-z]+\// };
+const utils = {};
 
 /**
  * Удалить специфичный для окружения путь
- * @param {String} path - путь
+ * @param {String} specificPath - путь
  * @param {RegExp|String} patternForEnv - шаблон в виде RegExp характеризующий часть пути окружения или сосбственно часть пути
  * @return {String} путь без специфичной составляющей
  */
-function deleteSpecificPathForEnviroment (path, patternForEnv) {
-  let resultPath = '',
-      matchedStr = '';
-  matchedStr = patternForEnv instanceof RegExp ? patternForEnv.exec(path)[0] : patternForEnv;
-  resultPath = path.slice(path.indexOf(matchedStr) + matchedStr.length);
+function deleteSpecificPathForEnviroment(specificPath, patternForEnv) {
+  let resultPath = '';
+  let matchedStr = '';
+  matchedStr = patternForEnv instanceof RegExp ? patternForEnv.exec(specificPath)[0] : patternForEnv;
+  resultPath = specificPath.slice(specificPath.indexOf(matchedStr) + matchedStr.length);
 
   return resultPath;
 }
@@ -31,9 +28,9 @@ function deleteSpecificPathForEnviroment (path, patternForEnv) {
  * @param {RegExp} [customEnvPathMatcher] - заданный матчер постоянной составляющей пути окружения
  * @return {String} результирующий путь
  */
-function mergePathFromAnotherEnv (currentBasePath, pathFromAnotherEnv, env, customEnvPathMatcher) {
+function mergePathFromAnotherEnv(currentBasePath, pathFromAnotherEnv, env, customEnvPathMatcher) {
   if (typeof agentPathMatcher[env] === 'undefined' && typeof customEnvPathMatcher === 'undefined') {
-    throw new Error(`Параметр env ${env ? env + ' не поддерживается' : 'не задан'}`);
+    throw new Error(`Параметр env ${env ? `${env} не поддерживается` : 'не задан'}`);
   }
   return path.join(currentBasePath, deleteSpecificPathForEnviroment(pathFromAnotherEnv, customEnvPathMatcher || agentPathMatcher[env]));
 }
@@ -42,7 +39,7 @@ function mergePathFromAnotherEnv (currentBasePath, pathFromAnotherEnv, env, cust
  * Режим расширенного логирования
  * @returns {boolean} режим расширенного логирования включен
  */
-function isVerboseMode () {
+function isVerboseMode() {
   return process.argv.indexOf('--verbose') !== -1;
 }
 
@@ -53,10 +50,10 @@ function isVerboseMode () {
  * @param {String} exeptPropertyValue - значение свойства, с которым мы будем сравнивать
  * @return {Object} - извлечённое значение
  */
-function findObjectInArrayByPropertyName (array, property, exeptPropertyValue) {
-  return array.find((item) => {
-    return parse(item, property) === exeptPropertyValue;
-  });
+function findObjectInArrayByPropertyName(array, property, exeptPropertyValue) {
+  return array.find(item => parse(item, property) === exeptPropertyValue);
 }
+
+utils.findObjectInArrayByPropertyName = findObjectInArrayByPropertyName;
 
 module.exports = utils;

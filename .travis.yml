@@ -6,5 +6,5 @@ dependencies:
   override:
     - npm install
 script:
-  - npm style  
+  - npm run style  
   - npm test

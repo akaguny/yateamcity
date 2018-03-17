@@ -25,27 +25,6 @@ function setBuildProblem(problemDescription, problemTypeId) {
 }
 
 /**
- * Выставление статуса
- * @param {String} currentMode - текущий режим
- * @param {Boolean} isSuccess - флаг статуса
- * @param {String} [reason=''] - причина
- */
-function reportStatus(currentMode, isSuccess, _reason) {
-  let reason = _reason || '';
-
-  switch (currentMode) {
-    case 'teamcity':
-      if (!isSuccess) {
-        setBuildProblem(reason, reason);
-      }
-      break;
-    default:
-      reason = reason ? `=== Reason: ${reason}` : '';
-      process.stdout.write(`\n\n=== Build ${isSuccess}\n${_reason}`);
-  }
-}
-
-/**
  * set build status
  * @param {String} status - build status
  * @param {String} [reason] - reason
@@ -210,7 +189,6 @@ function isTeamcity() {
 module.exports = {
   setBuildStatus,
   setBuildProblem,
-  reportStatus,
   setBuildName,
   getBuildArtifact,
   getBuildStatistics,

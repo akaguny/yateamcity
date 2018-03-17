@@ -1,3 +1,8 @@
+/**
+ * @module yateamcity
+ * @type {Object}
+ */
+
 const fetch = require('node-fetch');
 const base64Encode = require('base64url');
 const eslintTeamcityReporter = require('eslint-teamcity');
@@ -15,43 +20,28 @@ const fs = require('fs');
  * @property {string|function} branch branch name or function what return that
  */
 
-/**
- * set build problem
- * @param {String} problemDescription - problem description
- * @param {String} problemTypeId - problem id, in future you can what problem trend in teamcity interface
- */
+
 function setBuildProblem(problemDescription, problemTypeId) {
   process.stdout.write(`##teamcity[buildProblem description='${problemDescription}' identity='${problemTypeId || ''}']`);
 }
 
-/**
- * set build status
- * @param {String} status - build status
- * @param {String} [reason] - reason
- */
+
 function setBuildStatus(status, reason) {
   process.stdout.write(`##teamcity[buildStatus status='${status}' text='${reason}']`);
 }
 
-/**
- * prepare eslint report for teamcity
- * https://confluence.jetbrains.com/display/TCD10/Build+Script+Interaction+with+TeamCity#BuildScriptInteractionwithTeamCity-ReportingTests
- * @param {Object} eslintReport - parsed object of eslint results
- */
 function prepareEslintReportForTeamcity(eslintReport) {
   process.stdout.write(eslintTeamcityReporter(eslintReport));
 }
 
-/**
- * set build number
- * @param {String} buildName - build number, that string will be show in history of branch builds
- */
+
 function setBuildName(buildName) {
   process.stdout.write(`##teamcity[buildNumber '${buildName}']`);
 }
 
 /**
  * make standart headers for request to teamcity
+ * @private
  * @param {string} login - login
  * @param {string} password - password
  * @returns {object} {{'cache-control': string, 'accept': 'application/json', 'Authorization': string}} - object what can
@@ -64,11 +54,7 @@ function headers(login, password) {
   };
 }
 
-/**
- * get branches from teamcity build
- * @param {Options} options options object
- * @returns {Promise<Array>} - list of branches
- */
+
 function getBranches(options) {
   const url = `${options.host}/app/rest/buildTypes/id:${encodeURIComponent(options.buildTypeId)}/branches?locator=policy:ALL_BRANCHES&fields=branch(internalName,default,active)`;
   const fetchOpt = {
@@ -100,9 +86,7 @@ function normalizeBuildOptions(options) {
   return result;
 }
 
-/**
- * get build artifacts
- */
+
 async function getBuildArtifact(_options) {
   const options = await normalizeBuildOptions(_options);
   const url = `${options.host}/repository/download/${encodeURIComponent(options.buildTypeId)}/${encodeURIComponent(options.buildId)}:id/${encodeURIComponent(options.artifact)}`;
@@ -115,11 +99,7 @@ async function getBuildArtifact(_options) {
   return fetch(url, fetchOpt).then(response => (response.ok ? response.json() : Promise.reject(response)));
 }
 
-/**
- * get latest successfully build
- * @param {Object} _options
- * @return {Promise.<String>} - id latest successful build
- */
+
 async function getLatestSuccessBuildId(_options) {
   const options = await normalizeBuildOptions(_options);
   const url = `${options.host}/httpAuth/app/rest/builds?locator=buildType:${options.buildTypeId},branch:name:${options.branch},count:1,status:SUCCESS,state:finished`;
@@ -134,12 +114,7 @@ async function getLatestSuccessBuildId(_options) {
       Promise.reject(Error(`No much any successfull build for buildType:${options.buildTypeId} and branch:${options.branch}`))));
 }
 
-/**
- * get build statistics
- * @param {String} [statisticsParameterName] - name of the parameter
- * @param {String} [buildId=buildId] - build if
- * @return {Promise<Object[]>|Promise<Object>} - parameter value or all parameters values if name of the parametr dont send as argument
- */
+
 function getBuildStatistics(options) {
   const url = `${options.host}/app/rest/builds/buildId:${options.buildId}/statistics`;
   const fetchOpt = {
@@ -157,9 +132,6 @@ function getBuildStatistics(options) {
   });
 }
 
-/**
- * get all availeble options from teamCity
- */
 function getProperties() {
   const REGEXP_PROPERTY = /^([^#\s].*?)=(.*)$/;
   const stringToProps = src => src.split('\n')
@@ -178,23 +150,69 @@ function getProperties() {
   return Object.assign(buildProps, runnerProps, configProps);
 }
 
-/**
- * check where script was running
- * @return {boolean} - is script running in teamcity
- */
 function isTeamcity() {
   return !!process.env.TEAMCITY_VERSION;
 }
 
 module.exports = {
+  /**
+   * set build status
+   * @param {String} status - build status
+   * @param {String} [reason] - reason
+   */
   setBuildStatus,
+  /**
+   * set build problem
+   * @param {String} problemDescription - problem description
+   * @param {String} problemTypeId - problem id, in future you can what problem trend in teamcity interface
+   */
   setBuildProblem,
+  /**
+   * set build number
+   * @param {String} buildName - build number, that string will be show in history of branch builds
+   */
   setBuildName,
+  /**
+   * get build artifacts
+   * @async
+   * @param {Options} _options options object
+   * @return {Promise.<Any>} - id latest successful build
+   */
   getBuildArtifact,
+  /**
+   * get build statistics
+   * @async
+   * @param {String} [statisticsParameterName] - name of the parameter
+   * @param {String} [buildId=buildId] - build if
+   * @return {Promise<Object[]>|Promise<Object>} - parameter value or all parameters values if name of the parametr dont send as argument
+   */
   getBuildStatistics,
+  /**
+   * prepare eslint report for teamcity
+   * @see {@link https://confluence.jetbrains.com/display/TCD10/Build+Script+Interaction+with+TeamCity#BuildScriptInteractionwithTeamCity-ReportingTests}
+   * @param {Object} eslintReport - parsed object of eslint results
+   */
   prepareEslintReportForTeamcity,
+  /**
+   * get branches from teamcity build
+   * @param {Options} options options object
+   * @returns {Promise<Array>} - list of branches
+   */
   getBranches,
+  /**
+   * get all availeble options from teamCity
+   */
   getProperties,
+  /**
+   * get latest successfully build
+   * @async
+   * @param {Options} _options options object
+   * @return {Promise.<String>} - id latest successful build
+   */
   getLatestSuccessBuildId,
+  /**
+ * check where script was running
+ * @return {boolean} - is script running in teamcity
+ */
   isTeamcity,
 };

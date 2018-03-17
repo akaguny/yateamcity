@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "style": "eslint src/**/*.js"
+    "style": "eslint src/**/*.js",
+    "docs": "./buildReadmeMd.js"
   },
   "repository": {
     "type": "git",
@@ -28,8 +29,11 @@
     "eslint-plugin-import": "^2.9.0",
     "fs-extra": "^5.0.0",
     "jest": "^22.4.2",
+    "jsdoc-to-markdown": "^4.0.1",
     "nock": "^9.2.3",
     "path": "^0.12.7",
+    "shx": "^0.2.2",
+    "update-section": "^0.3.3",
     "yaspeller-ci": "^1.0.0"
   },
   "dependencies": {

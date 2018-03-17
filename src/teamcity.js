@@ -1,5 +1,3 @@
-const util = require('util');
-const xml2js = util.promisify(require('xml2js').parseString);
 const fetch = require('node-fetch');
 const base64Encode = require('base64url');
 const eslintTeamcityReporter = require('eslint-teamcity');
@@ -9,9 +7,18 @@ const debug = require('debug')('yateamcity');
 const fs = require('fs');
 
 /**
- * Установка проблем сборки
- * @param {String} problemDescription - текстовое описание проблемы
- * @param {String} problemTypeId - идентификатор проблемы
+ * @typedef Options - options, not all of them need for all of methods
+ * @property {string} serverUrl base url teamcity with protocol
+ * @property {string} login login
+ * @property {string} password password
+ * @property {string} buildTypeId build type id
+ * @property {string|function} branch branch name or function what return that
+ */
+
+/**
+ * set build problem
+ * @param {String} problemDescription - problem description
+ * @param {String} problemTypeId - problem id, in future you can what problem trend in teamcity interface
  */
 function setBuildProblem(problemDescription, problemTypeId) {
   process.stdout.write(`##teamcity[buildProblem description='${problemDescription}' identity='${problemTypeId || ''}']`);
@@ -39,33 +46,33 @@ function reportStatus(currentMode, isSuccess, _reason) {
 }
 
 /**
- * Установка статуса сборки
- * @param {String} status - статус сборки
- * @param {String} [reason] - причина
+ * set build status
+ * @param {String} status - build status
+ * @param {String} [reason] - reason
  */
 function setBuildStatus(status, reason) {
   process.stdout.write(`##teamcity[buildStatus status='${status}' text='${reason}']`);
 }
 
 /**
- * представление результатов проверки eslint в виде teamcity test
+ * prepare eslint report for teamcity
  * https://confluence.jetbrains.com/display/TCD10/Build+Script+Interaction+with+TeamCity#BuildScriptInteractionwithTeamCity-ReportingTests
- * @param {Object} eslintJsonReport - данные JSON объекта
+ * @param {Object} eslintReport - parsed object of eslint results
  */
-function prepareEslintReportForTeamcity(eslintJsonReport) {
-  process.stdout.write(eslintTeamcityReporter(eslintJsonReport));
+function prepareEslintReportForTeamcity(eslintReport) {
+  process.stdout.write(eslintTeamcityReporter(eslintReport));
 }
 
 /**
- * Установка имени сборки
- * @param {String} buildName - имя сборки
+ * set build number
+ * @param {String} buildName - build number, that string will be show in history of branch builds
  */
 function setBuildName(buildName) {
   process.stdout.write(`##teamcity[buildNumber '${buildName}']`);
 }
 
 /**
- * Make standart headers for request to teamcity
+ * make standart headers for request to teamcity
  * @param {string} login - login
  * @param {string} password - password
  * @returns {object} {{'cache-control': string, 'accept': 'application/json', 'Authorization': string}} - object what can
@@ -79,13 +86,9 @@ function headers(login, password) {
 }
 
 /**
- * Получение активных веток в сборке
- * @param {object} options объект опций
- * @param {string} options.serverUrl базовый url teamcity
- * @param {string} options.login логин
- * @param {string} options.password пароль
- * @param {string} options.buildTypeId build type id
- * @returns {Promise<Array>} объект с набором веток
+ * get branches from teamcity build
+ * @param {Options} options options object
+ * @returns {Promise<Array>} - list of branches
  */
 function getBranches(options) {
   const url = `${options.host}/app/rest/buildTypes/id:${encodeURIComponent(options.buildTypeId)}/branches?locator=policy:ALL_BRANCHES&fields=branch(internalName,default,active)`;
@@ -100,14 +103,9 @@ function getBranches(options) {
 }
 
 /**
- * Получение нормализованых опций
- * @param {object} options объект опций
- * @param {string} options.serverUrl базовый url teamcity
- * @param {string} options.login логин
- * @param {string} options.password пароль
- * @param {string} options.buildTypeId build type id
- * @param {string|function} options.branch имя ветки
- * @returns {PromiseLike<object> | Promise<object>} набор нормализованных опций,
+ * get normalize build options
+ * @param {Options} options - options object
+ * @returns {PromiseLike<object> | Promise<object>} normalized options
  */
 function normalizeBuildOptions(options) {
   let result;
@@ -124,7 +122,7 @@ function normalizeBuildOptions(options) {
 }
 
 /**
- * Получение артефакта сборки
+ * get build artifacts
  */
 async function getBuildArtifact(_options) {
   const options = await normalizeBuildOptions(_options);
@@ -139,10 +137,9 @@ async function getBuildArtifact(_options) {
 }
 
 /**
- * Id сборки по имени конфигурации и ветке
- * @param {Object} _options - имя master ветки
- * @return {Promise.<String>} - id последней удачной сборки по заданным
- * параметрам
+ * get latest successfully build
+ * @param {Object} _options
+ * @return {Promise.<String>} - id latest successful build
  */
 async function getLatestSuccessBuildId(_options) {
   const options = await normalizeBuildOptions(_options);
@@ -153,17 +150,16 @@ async function getLatestSuccessBuildId(_options) {
   };
 
   return fetch(url, fetchOpt).then(response => (response.ok ? response.text() : Promise.reject(response)))
-    .then(xml2js)
     .then(parsed => (parsed.builds.build ?
       get(parsed, 'builds.build[0].$.id') :
       Promise.reject(Error(`No much any successfull build for buildType:${options.buildTypeId} and branch:${options.branch}`))));
 }
 
 /**
- * Получить статистику по сборке
- * @param {String} [statisticsParameterName] - название параметра статистики
- * @param {String} [buildId=buildId] - идентификатор сборки
- * @return {Promise<Object[]>|Promise<Object>} - значение параметра или вся статистика
+ * get build statistics
+ * @param {String} [statisticsParameterName] - name of the parameter
+ * @param {String} [buildId=buildId] - build if
+ * @return {Promise<Object[]>|Promise<Object>} - parameter value or all parameters values if name of the parametr dont send as argument
  */
 function getBuildStatistics(options) {
   const url = `${options.host}/app/rest/builds/buildId:${options.buildId}/statistics`;
@@ -183,8 +179,7 @@ function getBuildStatistics(options) {
 }
 
 /**
- * Получаем опции teamCity
- * @returns {object} объект свойств
+ * get all availeble options from teamCity
  */
 function getProperties() {
   const REGEXP_PROPERTY = /^([^#\s].*?)=(.*)$/;
@@ -192,7 +187,6 @@ function getProperties() {
     .reduce((_result, prop) => {
       const result = Object.assign({}, _result);
       if (REGEXP_PROPERTY.test(prop)) {
-        // Какой-то треш в тимсити. Экранирует все :
         result[RegExp.$1] = RegExp.$2.replace('\\:', ':');
       }
       return result;
@@ -206,8 +200,8 @@ function getProperties() {
 }
 
 /**
- * Запуск выполнен в окружении teamcity
- * @return {boolean} находимся ли в окружени teamcity
+ * check where script was running
+ * @return {boolean} - is script running in teamcity
  */
 function isTeamcity() {
   return !!process.env.TEAMCITY_VERSION;

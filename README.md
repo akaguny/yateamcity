@@ -5,7 +5,6 @@ yet another teamcity library for nodejs
 <!-- START jsdoc -->
 <!-- END jsdoc -->
 ## TODO:
-* translate to English all JSDOC
 * add autodeploy on npm with Travis
 * add doctoc, jsdoc generation for Readme
 * improove coverage

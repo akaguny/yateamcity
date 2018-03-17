@@ -1,3 +1,12 @@
+## [Version 0.0.4](https://github.com/akaguny/yateamcity/releases/tag/v0.0.4) (2018-3-18)
+
+### Bug fixes
+
+- remove unused code: [`e3d13e3`](https://github.com/akaguny/yateamcity/commit/e3d13e3)
+- remove reportStatus function: [`9ef5f3d`](https://github.com/akaguny/yateamcity/commit/9ef5f3d)
+
+[...full changes](https://github.com/akaguny/yateamcity/compare/v0.0.3...v0.0.4)
+
 ## [Version 0.0.3](https://github.com/akaguny/yateamcity/releases/tag/v0.0.3) (2018-3-11)
 
 ### Bug fixes

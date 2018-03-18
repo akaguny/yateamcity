@@ -1,5 +1,12 @@
 # yateamcity
 yet another teamcity library for nodejs
+## install
+```sh
+npm i yateamcity
+```
+```js
+const teamcity = require('yateamcity');
+```
 
 [![npm version](https://badge.fury.io/js/yateamcity.svg)](https://www.npmjs.com/package/yateamcity)
 [![Build Status](https://travis-ci.org/akaguny/yateamcity.svg?branch=master)](https://travis-ci.org/akaguny/yateamcity)

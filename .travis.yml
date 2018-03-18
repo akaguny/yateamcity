@@ -8,3 +8,9 @@ dependencies:
 script:
   - npm run style  
   - npm test
+deploy:
+  provider: npm
+  email: alexeykolpino@gmail.com
+  api_key: $NPM_TOKEN
+  on:
+    tags: true

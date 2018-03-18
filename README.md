@@ -179,7 +179,7 @@ Develop:
 * for tests run `npm test`
 * for codestyle checks run `npm style`
 * for doc generate run `npm run docs`
-* for changelog generation run `changelog`
+* for release(generate changelog, add version tag) run `npm run release`. We use package named [standart-version](https://www.npmjs.com/package/standard-version) and you can use this features
 
 ### TODO
 * add autodeploy on npm with Travis

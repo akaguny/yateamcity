@@ -3,14 +3,13 @@ yet another teamcity library for nodejs
 
 [![npm version](https://badge.fury.io/js/yateamcity.svg)](https://www.npmjs.com/package/yateamcity)
 [![Build Status](https://travis-ci.org/akaguny/yateamcity.svg?branch=master)](https://travis-ci.org/akaguny/yateamcity)
-
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 
 - [API](#api)
 - [Contributing](#contributing)
-- [TODO:](#todo)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 ## API
@@ -174,7 +173,7 @@ get normalize build options
 <!-- END jsdoc-md-embedded -->
 
 ## Contributing
-[we use angular "Commit Message Guidelines"](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#commit)
+we use [Conventional Commits](https://conventionalcommits.org) for best changelog and version control
 
 Develop:
 * for tests run `npm test`

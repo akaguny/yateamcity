@@ -11,7 +11,7 @@ const macroreplaces = {
 };
 
 (async () => {
-    const jsdoc = await jsdoc2md.render({ files: 'src/teamcity.js' });
+    const jsdoc = await jsdoc2md.render({ files: 'src/teamcity.js', 'heading-depth': 3});
     const original = await fs.readFile(readme, 'utf8');
     const updated = original
         .replace(

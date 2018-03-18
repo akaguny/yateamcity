@@ -1,11 +1,21 @@
 # yateamcity
 yet another teamcity library for nodejs
-<!-- START doctoc -->
-<!-- END doctoc -->
+[![npm version](https://badge.fury.io/js/yateamcity.svg)](https://www.npmjs.com/package/yateamcity)
+[![Build Status](https://travis-ci.org/akaguny/yateamcity.svg?branch=master)](https://travis-ci.org/akaguny/yateamcity)
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+
+- [API](#api)
+- [Contributing](#contributing)
+- [TODO:](#todo)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+## API
 <!-- START jsdoc-md-embedded -->
 <a name="module_yateamcity"></a>
 
-## yateamcity : <code>Object</code>
+### yateamcity : <code>Object</code>
 
 * [yateamcity](#module_yateamcity) : <code>Object</code>
     * _static_
@@ -25,7 +35,7 @@ yet another teamcity library for nodejs
 
 <a name="module_yateamcity.setBuildStatus"></a>
 
-### yateamcity.setBuildStatus
+#### yateamcity.setBuildStatus
 set build status
 
 **Kind**: static property of [<code>yateamcity</code>](#module_yateamcity)  
@@ -37,7 +47,7 @@ set build status
 
 <a name="module_yateamcity.setBuildProblem"></a>
 
-### yateamcity.setBuildProblem
+#### yateamcity.setBuildProblem
 set build problem
 
 **Kind**: static property of [<code>yateamcity</code>](#module_yateamcity)  
@@ -49,7 +59,7 @@ set build problem
 
 <a name="module_yateamcity.setBuildName"></a>
 
-### yateamcity.setBuildName
+#### yateamcity.setBuildName
 set build number
 
 **Kind**: static property of [<code>yateamcity</code>](#module_yateamcity)  
@@ -60,7 +70,7 @@ set build number
 
 <a name="module_yateamcity.getBuildArtifact"></a>
 
-### yateamcity.getBuildArtifact ⇒ <code>Promise.&lt;Any&gt;</code>
+#### yateamcity.getBuildArtifact ⇒ <code>Promise.&lt;Any&gt;</code>
 get build artifacts
 
 **Kind**: static property of [<code>yateamcity</code>](#module_yateamcity)  
@@ -72,7 +82,7 @@ get build artifacts
 
 <a name="module_yateamcity.getBuildStatistics"></a>
 
-### yateamcity.getBuildStatistics ⇒ <code>Promise.&lt;Array.&lt;Object&gt;&gt;</code> \| <code>Promise.&lt;Object&gt;</code>
+#### yateamcity.getBuildStatistics ⇒ <code>Promise.&lt;Array.&lt;Object&gt;&gt;</code> \| <code>Promise.&lt;Object&gt;</code>
 get build statistics
 
 **Kind**: static property of [<code>yateamcity</code>](#module_yateamcity)  
@@ -85,7 +95,7 @@ get build statistics
 
 <a name="module_yateamcity.prepareEslintReportForTeamcity"></a>
 
-### yateamcity.prepareEslintReportForTeamcity
+#### yateamcity.prepareEslintReportForTeamcity
 prepare eslint report for teamcity
 
 **Kind**: static property of [<code>yateamcity</code>](#module_yateamcity)  
@@ -97,7 +107,7 @@ prepare eslint report for teamcity
 
 <a name="module_yateamcity.getBranches"></a>
 
-### yateamcity.getBranches ⇒ <code>Promise.&lt;Array&gt;</code>
+#### yateamcity.getBranches ⇒ <code>Promise.&lt;Array&gt;</code>
 get branches from teamcity build
 
 **Kind**: static property of [<code>yateamcity</code>](#module_yateamcity)  
@@ -109,13 +119,13 @@ get branches from teamcity build
 
 <a name="module_yateamcity.getProperties"></a>
 
-### yateamcity.getProperties
+#### yateamcity.getProperties
 get all availeble options from teamCity
 
 **Kind**: static property of [<code>yateamcity</code>](#module_yateamcity)  
 <a name="module_yateamcity.getLatestSuccessBuildId"></a>
 
-### yateamcity.getLatestSuccessBuildId ⇒ <code>Promise.&lt;String&gt;</code>
+#### yateamcity.getLatestSuccessBuildId ⇒ <code>Promise.&lt;String&gt;</code>
 get latest successfully build
 
 **Kind**: static property of [<code>yateamcity</code>](#module_yateamcity)  
@@ -127,14 +137,14 @@ get latest successfully build
 
 <a name="module_yateamcity.isTeamcity"></a>
 
-### yateamcity.isTeamcity ⇒ <code>boolean</code>
+#### yateamcity.isTeamcity ⇒ <code>boolean</code>
 check where script was running
 
 **Kind**: static property of [<code>yateamcity</code>](#module_yateamcity)  
 **Returns**: <code>boolean</code> - - is script running in teamcity  
 <a name="module_yateamcity..normalizeBuildOptions"></a>
 
-### yateamcity~normalizeBuildOptions(options) ⇒ <code>PromiseLike.&lt;object&gt;</code> \| <code>Promise.&lt;object&gt;</code>
+#### yateamcity~normalizeBuildOptions(options) ⇒ <code>PromiseLike.&lt;object&gt;</code> \| <code>Promise.&lt;object&gt;</code>
 get normalize build options
 
 **Kind**: inner method of [<code>yateamcity</code>](#module_yateamcity)  
@@ -146,7 +156,7 @@ get normalize build options
 
 <a name="module_yateamcity..Options"></a>
 
-### yateamcity~Options
+#### yateamcity~Options
 **Kind**: inner typedef of [<code>yateamcity</code>](#module_yateamcity)  
 **Properties**
 
@@ -160,7 +170,17 @@ get normalize build options
 
 
 <!-- END jsdoc-md-embedded -->
-## TODO:
+
+## Contributing
+[we use angular "Commit Message Guidelines"](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#commit)
+
+Develop:
+* for tests run `npm test`
+* for codestyle checks run `npm style`
+* for doc generate run `npm run docs`
+* for changelog generation run `changelog`
+
+### TODO
 * add autodeploy on npm with Travis
 * add doctoc, jsdoc generation for Readme
 * add deploy on npm with travis

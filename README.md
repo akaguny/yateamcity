@@ -189,7 +189,6 @@ Develop:
 * for release(generate changelog, add version tag) run `npm run release`. We use package named [standart-version](https://www.npmjs.com/package/standard-version) and you can use this features
 
 ### TODO
-* add autodeploy on npm with Travis
 * add doctoc, jsdoc generation for Readme
 * add deploy on npm with travis
 * improove coverage

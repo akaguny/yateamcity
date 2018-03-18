@@ -1,7 +1,9 @@
 # yateamcity
 yet another teamcity library for nodejs
+
 [![npm version](https://badge.fury.io/js/yateamcity.svg)](https://www.npmjs.com/package/yateamcity)
 [![Build Status](https://travis-ci.org/akaguny/yateamcity.svg?branch=master)](https://travis-ci.org/akaguny/yateamcity)
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 

@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.0.7"></a>
+## [0.0.7](https://github.com/akaguny/yateamcity/compare/v0.0.6...v0.0.7) (2019-06-10)
+
+
+### Bug Fixes
+
+* npm audit issues ([551de5e](https://github.com/akaguny/yateamcity/commit/551de5e))
+
+
+
 <a name="0.0.6"></a>
 ## [0.0.6](https://github.com/akaguny/yateamcity/compare/v0.0.5...v0.0.6) (2018-03-18)
 

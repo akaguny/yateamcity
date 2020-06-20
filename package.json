@@ -3,6 +3,9 @@
   "version": "0.0.7",
   "description": "yet another teamcity api library for node",
   "main": "index.js",
+  "engines": {
+    "node": ">=12"
+  },
   "scripts": {
     "test": "jest",
     "style": "eslint src/**/*.js",

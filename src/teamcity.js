@@ -4,7 +4,6 @@
  */
 
 const fetch = require('node-fetch');
-const base64Encode = require('base64url');
 const eslintTeamcityReporter = require('eslint-teamcity');
 const utils = require('./utils');
 const get = require('lodash.get');
@@ -50,7 +49,7 @@ function headers(login, password) {
   return {
     'cache-control': 'no-cache',
     accept: 'application/json',
-    Authorization: `Basic ${base64Encode.encode(`${login}:${password}`)}`,
+    Authorization: `Basic ${Buffer.from(`${login}:${password}`, 'utf8').toString('base64')}`,
   };
 }
 

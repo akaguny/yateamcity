@@ -40,7 +40,6 @@
     "standard-version": "^8.0.0"
   },
   "dependencies": {
-    "base64url": "^3.0.1",
     "debug": "^3.1.0",
     "eslint-teamcity": "^2.0.0",
     "lodash.get": "^4.4.2",

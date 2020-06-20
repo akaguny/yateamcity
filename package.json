@@ -1,6 +1,6 @@
 {
   "name": "yateamcity",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "yet another teamcity api library for node",
   "main": "index.js",
   "engines": {
@@ -9,8 +9,12 @@
   "scripts": {
     "test": "jest",
     "style": "eslint src/**/*.js",
-    "docs": "./buildReadmeMd.js;doctoc --notitle --maxlevel=2 README.md",
-    "release": "standard-version"
+    "predocs": "node buildReadmeMd.js",
+    "docs": "doctoc --notitle --maxlevel=2 README.md",
+    "release": "standard-version",
+    "release:patch": "npm run release -- --release-as patch",
+    "release:minor": "npm run release -- --release-as minor",
+    "release:major": "npm run release -- --release-as major"
   },
   "repository": {
     "type": "git",

@@ -31,10 +31,10 @@
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.9.0",
     "fs-extra": "^5.0.0",
-    "jest": "^24.8.0",
+    "jest": "^26.0.1",
     "jsdoc-to-markdown": "^5.0.0",
     "nock": "^9.2.3",
-    "standard-version": "^4.3.0"
+    "standard-version": "^8.0.0"
   },
   "dependencies": {
     "base64url": "^3.0.1",
